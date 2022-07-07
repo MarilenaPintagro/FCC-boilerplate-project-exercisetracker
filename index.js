@@ -11,15 +11,23 @@ mongoose.connect("mongodb+srv://utente1:pippo@freecodecamp1.0uejngy.mongodb.net/
 //mongosetup
 const userSchema = new mongoose.Schema({
   username: String,
-  excercise: {
-        username: String,
-        description: String,
-        duration: Number,
-        date: Date 
-    }
+  description: String,
+  duration: Number,
+  date: String ,
+  
 });
 
 var User = mongoose.model("User", userSchema);
+
+const exerciseSchema = new mongoose.Schema({
+  username: String,
+  description: String,
+  duration: Number,
+  date: Date 
+}
+);
+
+var Exercise = mongoose.model("Exercise", userSchema);
 
 
 app.use(cors())
@@ -74,32 +82,46 @@ app.post("/api/users/:_id/exercises", function (req, res) {
   //console.log(Object.keys(req));
   var desc = req.body.description;
   var dur = req.body.duration;
-  var dat =req.body.date;
+  /*var dat =req.body.date;
   console.log(dat);
   if (typeof dat === 'undefined') {
-    dat = new Date()
+    dat = new Date.now()
+  }*/
+  let dat = new Date(req.body.date);
+  let dateStr = dat.toDateString();
+  
+  if(dateStr == 'Invalid Date'){
+    dat = new Date(Date.now());
+    dateStr = dat.toDateString();
   }
-  console.log(desc + ' ' + dur + '  ' +dat);
+  //Formatto la data
+let year = dat.getFullYear();
+let month = dat.toLocaleDateString('en-US', {
+    month: 'short',
+  }) 
+let day = ("0" + dat.getDate()).slice(-2);
+let dayWeek = dat.toLocaleDateString('en-US', {
+    weekday: 'short',
+  })  
+
+
+  //
+  console.log(desc + ' ' + dur + '  ' +dateStr);
         
-  var ogg = {
-          description: desc,
+  var x = User.findOneAndUpdate({_id: req.params._id}, {description: desc,
           duration: dur,
-          date: dat,
-        };
-  var ut = new User();
-  ut.exercise = ogg;
-  console.log(req.params._id);
-        
-  var x = User.findOneAndUpdate({_id: req.params._id}, {exercise: ogg}, { new: true },               function(err, data){
-    if (err) console.log(err);
-                                   
-       
-                                 });
-User.findById(req.params._id, function(err, data) {
-    if (err) return console.log(err);
-  console.log(data);
-    res.send(data);
-})
+          date: dateStr}, { new: true }, function(err, data) {
+    console.log(data);
+        res.json({
+          username: data.username,
+          description: data.description,
+          duration: data.duration,
+          date: data.date,
+          _id: data._id
+
+        });
+});
+
    
       
 });
