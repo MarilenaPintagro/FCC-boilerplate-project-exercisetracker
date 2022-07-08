@@ -106,7 +106,6 @@ let dayWeek = dat.toLocaleDateString('en-US', {
 
 
   //
-  console.log(desc + ' ' + dur + '  ' +dateStr);
         
   var x = User.findOneAndUpdate({_id: req.params._id}, {description: desc,
           duration: dur,
