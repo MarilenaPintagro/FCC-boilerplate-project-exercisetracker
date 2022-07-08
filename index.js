@@ -6,7 +6,7 @@ let mongoose = require("mongoose");
 let bodyParser = require('body-parser');
 
 
-mongoose.connect("mongodb+srv://utente1:pippo@freecodecamp1.0uejngy.mongodb.net/freecodecamp1?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 //mongosetup
 const userSchema = new mongoose.Schema({
