@@ -138,24 +138,25 @@ app.get('/api/users/:_id/logs',(req,res)=>{
       var ogg = User.findOne({_id: utente},  function (err, doc){
         let nome = doc.username;
         //console.log(nome);
-        var x = Exercise.find({username: nome});
-        console.log(x);
-        x.count(function (err, conta) {
-            if (err) console.log(err)
-            else console.log("Count is", conta);
-
+        var p = null;
+        var c = 0;
+        var x = Exercise.find({username: nome}, function (err, res2){
+          
+          p = res2;
+          c= res2.length;
+          //console.log(res);
+          console.log("res" + res2.length);
           res.json({
           username: doc.username,
           description: doc.description,
           duration: doc.duration,
           date: doc.date,
-          count: conta,
-          _id: doc._id,
-         
-
+          count: c,
+          log: p,
+          _id: doc._id
+                 });
         });
-        });
-      });
+    });
                                                         });
 
 
