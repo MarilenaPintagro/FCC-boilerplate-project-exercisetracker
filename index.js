@@ -6,7 +6,7 @@ let mongoose = require("mongoose");
 let bodyParser = require('body-parser');
 
 
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect("mongodb+srv://utente1:pippo@freecodecamp1.0uejngy.mongodb.net/freecodecamp1?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
 
 //mongosetup
 const userSchema = new mongoose.Schema({
@@ -49,7 +49,7 @@ app.use(function middleware(req, res, next) {
 app.post("/api/users", function (req, res) {
   //console.log(Object.keys(req));
    us = req.body.username;
-  console.log(us);
+  //console.log(us);
   const utente = new User({username:us});
   utente.save((err,data)=>{
         
@@ -106,11 +106,18 @@ let dayWeek = dat.toLocaleDateString('en-US', {
 
 
   //
+ // console.log(desc + ' ' + dur + '  ' +dateStr);
         
   var x = User.findOneAndUpdate({_id: req.params._id}, {description: desc,
           duration: dur,
           date: dateStr}, { new: true }, function(err, data) {
-    console.log(data);
+   // console.log(data);
+        const ese = new Exercise({
+          username: data.username,
+          description: data.description,
+          duration: data.duration,
+          date: data.date});
+        ese.save(((err,data)=>{}));
         res.json({
           username: data.username,
           description: data.description,
@@ -126,6 +133,33 @@ let dayWeek = dat.toLocaleDateString('en-US', {
 });
 
 
+app.get('/api/users/:_id/logs',(req,res)=>{
+      let utente = req.params._id;
+      var ogg = User.findOne({_id: utente},  function (err, doc){
+        let nome = doc.username;
+        //console.log(nome);
+        var x = Exercise.find({username: nome});
+        console.log(x);
+        x.count(function (err, conta) {
+            if (err) console.log(err)
+            else console.log("Count is", conta);
+
+          res.json({
+          username: doc.username,
+          description: doc.description,
+          duration: doc.duration,
+          date: doc.date,
+          count: conta,
+          _id: doc._id,
+         
+
+        });
+        });
+      });
+                                                        });
+
+
+                                                        
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
 })
