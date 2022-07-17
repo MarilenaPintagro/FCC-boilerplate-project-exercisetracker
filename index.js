@@ -6,7 +6,7 @@ let mongoose = require("mongoose");
 let bodyParser = require('body-parser');
 
 
-mongoose.connect("mongodb+srv://utente1:pippo@freecodecamp1.0uejngy.mongodb.net/freecodecamp1?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 //mongosetup
 const userSchema = new mongoose.Schema({
@@ -58,7 +58,7 @@ app.post("/api/users", function (req, res) {
           _id: data.id
         };
         //console.log(ogg);
-        res.json(ogg);
+         res.json(ogg);
       })
     
 });
@@ -118,7 +118,7 @@ let dayWeek = dat.toLocaleDateString('en-US', {
           duration: data.duration,
           date: data.date});
         ese.save(((err,data)=>{}));
-        res.json({
+        return res.json({
           username: data.username,
           description: data.description,
           duration: data.duration,
@@ -133,27 +133,52 @@ let dayWeek = dat.toLocaleDateString('en-US', {
 });
 
 
-app.get('/api/users/:_id/logs',(req,res)=>{
+app.get('/api/users/:_id/logs?',(req,res)=>{
+    console.log(`req.body: ${JSON.stringify(req.body)}`);
+  console.log(`req.params: ${JSON.stringify(req.params)}`);
+  console.log(`req.query: ${JSON.stringify(req.query)}`);
+
       let utente = req.params._id;
+      const from = req.query.from;
+      const to = req.query.to;
+      const limite = req.query.limit;
       var ogg = User.findOne({_id: utente},  function (err, doc){
         let nome = doc.username;
         //console.log(nome);
         var p = null;
         var c = 0;
-        var x = Exercise.find({username: nome}, function (err, res2){
-          
+        console.log(from +  "   " + to + "   " + limite);
+        var query_find = {username: nome}
+       /* if(!(from === undefined && to === undefined)){
+          console.log("quiii");
+          query_find = {username: nome, date:{$gte: from, $lte:to}};
+        }
+        var query_limit = 10000;
+        if(! (limite === undefined)){
+          console.log("quaaa");
+          query_limit = Number(limite);
+        }*/
+        var x = Exercise.find(query_find).exec( function (err, res2){
           p = res2;
+          if(req.query.from && req.query.to){
+        p = p.filter((item)=>{
+          new Date(item.date).getTime() >= new Date(req.query.from).getTime() && new Date(item.date).getTime() <= new Date(req.query.to).getTime()
+        })}
+      if(req.query.limit){
+        p =p.filter((d,i)=> i < req.query.limit )
+        
+      }
           c= res2.length;
-          //console.log(res);
           console.log("res" + res2.length);
-          res.json({
+          console.log(p);
+          return res.json({
           username: doc.username,
           description: doc.description,
           duration: doc.duration,
           date: doc.date,
           count: c,
-          log: p,
-          _id: doc._id
+          _id: doc._id,
+            log: p
                  });
         });
     });
